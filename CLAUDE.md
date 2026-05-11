@@ -65,15 +65,11 @@ Supabase Client SDK → Supabase (Auth / DB / Storage)
 
 ## データモデル
 
-### users
-- id (uuid, PK) — Supabase Auth の user id
-- display_name (varchar) — 表示名
-- avatar_url (varchar, nullable) — アバター画像URL
-- created_at, updated_at
+ユーザー情報は Supabase Auth が管理する `auth.users` をそのまま利用し、`public.users` テーブルは作らない方針。表示名・アバターは Google OAuth の値（`auth.users.raw_user_meta_data`）を直接利用する。
 
 ### memories
 - id (uuid, PK)
-- user_id (uuid, FK → users)
+- user_id (uuid, FK → auth.users)
 - title (varchar)
 - description (text, nullable)
 - date (date, nullable) — 任意
@@ -86,29 +82,25 @@ Supabase Client SDK → Supabase (Auth / DB / Storage)
 - id (uuid, PK)
 - memory_id (uuid, FK → memories)
 - storage_path (varchar) — Supabase Storage のパス
-- display_order (int)
-- created_at
 
 ### companions（同行者）
 - id (uuid, PK)
 - memory_id (uuid, FK → memories)
 - name (varchar) — フリーテキスト
-- user_id (uuid, FK → users, nullable) — 将来の他ユーザー紐付け用
 
 ## 画面構成
 
 1. **ログイン画面** — Google OAuth ボタンのみ
-2. **初回プロフィール登録** — 名前入力（Google名がデフォルト）
-3. **マップ画面（メイン）** — 全画面地図 + 検索バー（上部） + FAB（右下） + アバターアイコン（左上）
-4. **登録モーダル（ボトムシート）** — 場所・タイトル・日付・写真・同行者・メモ
-5. **ポップアップ** — ピンタップでサムネ・タイトル・日付を表示
-6. **詳細モーダル（ボトムシート）** — 画像カルーセル・場所・日付・同行者・メモ
-7. **設定画面** — 名前/アバター変更・ログアウト・アカウント削除
+2. **マップ画面（メイン）** — 全画面地図 + 検索バー（上部） + FAB（右下） + アバターアイコン（左上）
+3. **登録モーダル（ボトムシート）** — 場所・タイトル・日付・写真・同行者・メモ
+4. **ポップアップ** — ピンタップでサムネ・タイトル・日付を表示
+5. **詳細モーダル（ボトムシート）** — 画像カルーセル・場所・日付・同行者・メモ
+6. **設定画面** — ログアウト・アカウント削除
 
 ## 画面遷移
 
 ```
-ログイン → (初回) プロフィール登録 → マップ画面
+ログイン → マップ画面
 マップ画面:
   ├── 検索バー → 検索結果ドロップダウン → 地図移動
   ├── +ボタン / 地図タップ → 登録モーダル → 保存 → ピン追加
